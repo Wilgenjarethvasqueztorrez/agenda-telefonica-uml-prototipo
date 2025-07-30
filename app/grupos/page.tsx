@@ -23,7 +23,6 @@ import {
   Briefcase,
   FlaskConical,
   Settings,
-  LogOut,
   Star,
   UserCheck,
 } from "lucide-react"
@@ -40,6 +39,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import AppLayout from "@/components/AppLayout"
 
 interface Group {
   id: number
@@ -303,99 +303,18 @@ export default function GroupsPage() {
     return status === "Activo" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
   }
 
-  const handleLogout = () => {
-    console.log("Cerrando sesión...")
-  }
-
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-64 bg-gradient-to-b from-green-500 to-green-600 text-white flex flex-col">
-        <div className="p-4 border-b border-green-400">
-          <h2 className="text-lg font-semibold">Agenda UML</h2>
-        </div>
-
-        <nav className="flex-1 p-2">
-          <Link
-            href="/agenda"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
-          >
-            <Phone className="w-4 h-4" />
-            Agenda telefónica
-          </Link>
-          <Link
-            href="/usuarios"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
-          >
-            <Users className="w-4 h-4" />
-            Usuarios
-          </Link>
-          <Link
-            href="/grupos"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 bg-white/20 text-white font-medium"
-          >
-            <Building className="w-4 h-4" />
-            Grupos
-          </Link>
-          <Link
-            href="/carreras"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
-          >
-            <GraduationCap className="w-4 h-4" />
-            Carreras
-          </Link>
-          <Link
-            href="/perfil"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
-          >
-            <User className="w-4 h-4" />
-            Perfil
-          </Link>
-          <Link
-            href="/notificaciones"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
-          >
-            <Bell className="w-4 h-4" />
-            Notificación
-            <Badge className="bg-red-500 text-white text-xs ml-auto">3</Badge>
-          </Link>
-          <Link
-            href="/invitaciones"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
-          >
-            <UserPlus className="w-4 h-4" />
-            Invitación
-          </Link>
-        </nav>
-
-        {/* Logout Button */}
-        <div className="p-2 border-t border-green-400">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors text-green-100 hover:bg-red-500/20 hover:text-white"
-          >
-            <LogOut className="w-4 h-4" />
-            Cerrar Sesión
-          </button>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Grupos</h1>
-              <p className="text-sm text-gray-600">Gestiona grupos de estudio y equipos para eventos especiales</p>
-            </div>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button onClick={() => setEditingGroup(null)} size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Crear Grupo
-                </Button>
-              </DialogTrigger>
+    <AppLayout
+      title="Grupos"
+      description="Gestiona grupos de estudio y equipos para eventos especiales"
+      headerContent={
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button onClick={() => setEditingGroup(null)} size="sm">
+              <Plus className="w-4 h-4 mr-2" />
+              Crear Grupo
+            </Button>
+          </DialogTrigger>
               <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>{editingGroup ? "Editar Grupo" : "Crear Nuevo Grupo"}</DialogTitle>
@@ -587,74 +506,71 @@ export default function GroupsPage() {
                 </form>
               </DialogContent>
             </Dialog>
-          </div>
-        </div>
-
-        {/* Filters */}
-        <div className="bg-white border-b border-gray-200 px-6 py-3">
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Category Filter Pills */}
-            <div className="flex flex-wrap gap-2">
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1 ${
-                    selectedCategory === category
-                      ? "bg-green-500 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  {category === "Evento" && <Star className="w-3 h-3" />}
-                  {category}
-                </button>
-              ))}
-            </div>
-
-            {/* Type Filter */}
-            <Select value={selectedType} onValueChange={setSelectedType}>
-              <SelectTrigger className="w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {groupTypes.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {/* Status Filter */}
-            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {statusOptions.map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {status}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {/* Search */}
-            <div className="relative ml-auto">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                placeholder="Buscar grupos..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-64"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 overflow-auto">
+          }
+        >
           <div className="p-6">
+            {/* Filters */}
+            <div className="bg-white border-b border-gray-200 px-6 py-3 mb-6">
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Category Filter Pills */}
+                <div className="flex flex-wrap gap-2">
+                  {categories.map((category) => (
+                    <button
+                      key={category}
+                      onClick={() => setSelectedCategory(category)}
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1 ${
+                        selectedCategory === category
+                          ? "bg-green-500 text-white"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
+                    >
+                      {category === "Evento" && <Star className="w-3 h-3" />}
+                      {category}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Type Filter */}
+                <Select value={selectedType} onValueChange={setSelectedType}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {groupTypes.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* Status Filter */}
+                <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statusOptions.map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {status}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* Search */}
+                <div className="relative ml-auto">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Buscar grupos..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 w-64"
+                  />
+                </div>
+              </div>
+            </div>
+
             <Card>
               <CardContent className="p-0">
                 <Table>
@@ -774,8 +690,6 @@ export default function GroupsPage() {
               Mostrando {filteredGroups.length} de {groups.length} grupos
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+        </AppLayout>
+      )
+    }

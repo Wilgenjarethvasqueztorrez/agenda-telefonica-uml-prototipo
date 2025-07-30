@@ -7,7 +7,6 @@ import {
   Users,
   GraduationCap,
   Bell,
-  LogOut,
   User,
   Edit3,
   Save,
@@ -17,7 +16,7 @@ import {
   Settings,
   Eye,
   EyeOff,
-  Building,
+  LogOut,
   UserPlus,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -31,6 +30,7 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
+import AppLayout from "@/components/AppLayout"
 
 export default function PerfilPage() {
   const [isEditing, setIsEditing] = useState(false)
@@ -83,90 +83,16 @@ export default function PerfilPage() {
     // Aquí podrías revertir los cambios si es necesario
   }
 
-  const handleLogout = () => {
-    console.log("Cerrando sesión...")
-  }
-
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-64 bg-gradient-to-b from-green-500 to-green-600 text-white flex flex-col">
-        <div className="p-4 border-b border-green-400">
-          <h2 className="text-lg font-semibold">Agenda UML</h2>
-        </div>
-
-        <nav className="flex-1 p-2">
-          <Link
-            href="/agenda"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
-          >
-            <Phone className="w-4 h-4" />
-            Agenda telefónica
-          </Link>
-          <Link
-            href="/usuarios"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
-          >
-            <Users className="w-4 h-4" />
-            Usuarios
-          </Link>
-          <Link
-            href="/grupos"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
-          >
-            <Building className="w-4 h-4" />
-            Grupos
-          </Link>
-          <Link
-            href="/carreras"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
-          >
-            <GraduationCap className="w-4 h-4" />
-            Carreras
-          </Link>
-          <Link
-            href="/perfil"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 bg-white/20 text-white font-medium"
-          >
-            <User className="w-4 h-4" />
-            Perfil
-          </Link>
-          <Link
-            href="/notificaciones"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
-          >
-            <Bell className="w-4 h-4" />
-            Notificación
-            <Badge className="bg-red-500 text-white text-xs ml-auto">3</Badge>
-          </Link>
-          <Link
-            href="/invitaciones"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
-          >
-            <UserPlus className="w-4 h-4" />
-            Invitación
-          </Link>
-        </nav>
-
-        {/* Logout Button */}
-        <div className="p-2 border-t border-green-400">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors text-green-100 hover:bg-red-500/20 hover:text-white"
-          >
-            <LogOut className="w-4 h-4" />
-            Cerrar Sesión
-          </button>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 overflow-auto">
-        <div className="p-8">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Mi Perfil</h1>
+    <AppLayout
+      title="Mi Perfil"
+      description="Gestiona tu información personal y configuración"
+    >
+      <div className="p-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Mi Perfil</h1>
               <p className="text-gray-600 mt-2">Gestiona tu información personal y configuración de cuenta</p>
             </div>
             <div className="flex space-x-3">
@@ -614,7 +540,6 @@ export default function PerfilPage() {
             </TabsContent>
           </Tabs>
         </div>
-      </div>
-    </div>
-  )
-}
+      </AppLayout>
+    )
+  }

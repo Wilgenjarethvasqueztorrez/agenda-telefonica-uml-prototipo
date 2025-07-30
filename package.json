@@ -1,12 +1,14 @@
 {
-  "name": "my-v0-project",
-  "version": "0.1.0",
+  "name": "agenda-uml",
+  "version": "1.0.0",
+  "description": "Sistema de gestión de agenda telefónica para la Universidad Martin Lutero",
   "private": true,
   "scripts": {
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -67,5 +69,26 @@
     "postcss": "^8.5",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
-  }
+  },
+  "keywords": [
+    "universidad",
+    "agenda",
+    "telefónica",
+    "estudiantes",
+    "docentes",
+    "UML",
+    "nextjs",
+    "typescript",
+    "tailwindcss"
+  ],
+  "author": "Carlos Andres Perez Ubeda",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tu-usuario/agenda-telefonica-uml-prototipo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tu-usuario/agenda-telefonica-uml-prototipo/issues"
+  },
+  "homepage": "https://github.com/tu-usuario/agenda-telefonica-uml-prototipo#readme"
 }

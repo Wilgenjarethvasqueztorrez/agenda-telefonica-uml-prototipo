@@ -3,36 +3,36 @@
 import type React from "react"
 
 import { useState } from "react"
+import Link from "next/link"
 import {
   Search,
   Plus,
   Phone,
-  Building,
-  User,
+  Mail,
   Edit,
   Trash2,
-  Users,
+  User,
   GraduationCap,
-  Bell,
+  Briefcase,
+  Users,
   UserPlus,
+  Bell,
+  LogOut,
+  Building,
   MoreHorizontal,
   Eye,
-  Crown,
-  Briefcase,
-  LogOut,
-  Mail,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Textarea } from "@/components/ui/textarea"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface Contact {
@@ -195,16 +195,6 @@ const departments = [
 const contactRoles = ["Todos", "Estudiante", "Profesor", "Administrativo", "Directivo"]
 const statusOptions = ["Todos", "Activo", "Inactivo"]
 
-const sidebarItems = [
-  { icon: Phone, label: "Agenda telefónica", active: true },
-  { icon: Users, label: "Usuarios", active: false },
-  { icon: Building, label: "Grupos", active: false },
-  { icon: GraduationCap, label: "Carreras", active: false },
-  { icon: User, label: "Perfil", active: false },
-  { icon: Bell, label: "Notificación", active: false },
-  { icon: UserPlus, label: "Invitación", active: false },
-]
-
 export default function AgendaPage() {
   const [contacts, setContacts] = useState<Contact[]>(initialContacts)
   const [searchTerm, setSearchTerm] = useState("")
@@ -324,7 +314,7 @@ export default function AgendaPage() {
       Estudiante: GraduationCap,
       Profesor: User,
       Administrativo: Briefcase,
-      Directivo: Crown,
+      Directivo: Users,
     }
     const IconComponent = icons[role as keyof typeof icons] || User
     return <IconComponent className="w-3 h-3" />
@@ -347,17 +337,56 @@ export default function AgendaPage() {
         </div>
 
         <nav className="flex-1 p-2">
-          {sidebarItems.map((item, index) => (
-            <button
-              key={index}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 ${
-                item.active ? "bg-white/20 text-white font-medium" : "text-green-100 hover:bg-white/10 hover:text-white"
-              }`}
-            >
-              <item.icon className="w-4 h-4" />
-              {item.label}
-            </button>
-          ))}
+          <Link
+            href="/agenda"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 bg-white/20 text-white font-medium"
+          >
+            <Phone className="w-4 h-4" />
+            Agenda telefónica
+          </Link>
+          <Link
+            href="/usuarios"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
+          >
+            <Users className="w-4 h-4" />
+            Usuarios
+          </Link>
+          <Link
+            href="/grupos"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
+          >
+            <Building className="w-4 h-4" />
+            Grupos
+          </Link>
+          <Link
+            href="/carreras"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
+          >
+            <GraduationCap className="w-4 h-4" />
+            Carreras
+          </Link>
+          <Link
+            href="/perfil"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
+          >
+            <User className="w-4 h-4" />
+            Perfil
+          </Link>
+          <Link
+            href="/notificaciones"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
+          >
+            <Bell className="w-4 h-4" />
+            Notificación
+            <Badge className="bg-red-500 text-white text-xs ml-auto">3</Badge>
+          </Link>
+          <Link
+            href="/invitaciones"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
+          >
+            <UserPlus className="w-4 h-4" />
+            Invitación
+          </Link>
         </nav>
 
         {/* Logout Button */}

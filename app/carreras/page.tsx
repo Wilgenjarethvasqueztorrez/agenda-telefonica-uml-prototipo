@@ -3,37 +3,15 @@
 import type React from "react"
 
 import { useState } from "react"
-import {
-  Search,
-  Plus,
-  Phone,
-  Building,
-  User,
-  Edit,
-  Trash2,
-  Users,
-  GraduationCap,
-  Bell,
-  UserPlus,
-  MoreHorizontal,
-  Eye,
-  Clock,
-  LogOut,
-  BookOpen,
-  UserCheck,
-  Award,
-} from "lucide-react"
+import Link from "next/link"
+import { Plus, Phone, Building, User, Users, GraduationCap, Bell, UserPlus, LogOut, Award } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Textarea } from "@/components/ui/textarea"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 interface CareerSection {
   id: number
@@ -272,37 +250,6 @@ const careers = ["Todas", "Ing. en Sistemas", "Administración", "Medicina", "De
 
 const studentYears = ["Año", "1er", "2do", "3ro", "4to", "5to", "6to", "7mo"]
 
-const sidebarItems = [
-  { icon: Phone, label: "Agenda telefónica", active: false },
-  { icon: Users, label: "Usuarios", active: false },
-  { icon: Building, label: "Grupos", active: false },
-  { icon: GraduationCap, label: "Carreras", active: true },
-  { icon: User, label: "Perfil", active: false },
-  { icon: Bell, label: "Notificación", active: false },
-  { icon: UserPlus, label: "Invitación", active: false },
-]
-
-// Componente para mostrar avatares de maestros
-function TeachersAvatarGroup({ teachers }: { teachers: string[] }) {
-  return (
-    <div className="flex -space-x-2">
-      {teachers.map((teacher, index) => (
-        <Avatar key={index} className="w-6 h-6 border-2 border-white">
-          <AvatarImage src="/placeholder.svg" />
-          <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
-            {teacher
-              .split(" ")
-              .map((n) => n[0])
-              .join("")
-              .toUpperCase()
-              .slice(0, 2)}
-          </AvatarFallback>
-        </Avatar>
-      ))}
-    </div>
-  )
-}
-
 export default function CareersPage() {
   const [careerSections, setCareerSections] = useState<CareerSection[]>(initialCareerSections)
   const [searchTerm, setSearchTerm] = useState("")
@@ -438,17 +385,56 @@ export default function CareersPage() {
         </div>
 
         <nav className="flex-1 p-2">
-          {sidebarItems.map((item, index) => (
-            <button
-              key={index}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 ${
-                item.active ? "bg-white/20 text-white font-medium" : "text-green-100 hover:bg-white/10 hover:text-white"
-              }`}
-            >
-              <item.icon className="w-4 h-4" />
-              {item.label}
-            </button>
-          ))}
+          <Link
+            href="/agenda"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
+          >
+            <Phone className="w-4 h-4" />
+            Agenda telefónica
+          </Link>
+          <Link
+            href="/usuarios"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
+          >
+            <Users className="w-4 h-4" />
+            Usuarios
+          </Link>
+          <Link
+            href="/grupos"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
+          >
+            <Building className="w-4 h-4" />
+            Grupos
+          </Link>
+          <Link
+            href="/carreras"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 bg-white/20 text-white font-medium"
+          >
+            <GraduationCap className="w-4 h-4" />
+            Carreras
+          </Link>
+          <Link
+            href="/perfil"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
+          >
+            <User className="w-4 h-4" />
+            Perfil
+          </Link>
+          <Link
+            href="/notificaciones"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
+          >
+            <Bell className="w-4 h-4" />
+            Notificación
+            <Badge className="bg-red-500 text-white text-xs ml-auto">3</Badge>
+          </Link>
+          <Link
+            href="/invitaciones"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
+          >
+            <UserPlus className="w-4 h-4" />
+            Invitación
+          </Link>
         </nav>
 
         {/* Logout Button */}
@@ -638,168 +624,4 @@ export default function CareersPage() {
         <div className="bg-white border-b border-gray-200 px-6 py-3">
           <div className="flex flex-wrap items-center gap-3">
             {/* Career Filter Pills */}
-            <div className="flex flex-wrap gap-2">
-              {careers.slice(0, 6).map((career) => (
-                <button
-                  key={career}
-                  onClick={() => setSelectedCareer(career)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                    selectedCareer === career
-                      ? "bg-green-500 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  {career}
-                </button>
-              ))}
-            </div>
-
-            {/* Year Filter */}
-            <Select value={selectedYear} onValueChange={setSelectedYear}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {studentYears.map((year) => (
-                  <SelectItem key={year} value={year}>
-                    {year === "Año" ? "Año" : `${year} año`}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {/* Search */}
-            <div className="relative ml-auto">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                placeholder="Buscar secciones o maestros..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-64"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 overflow-auto">
-          <div className="p-6">
-            <Card>
-              <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-b">
-                      <TableHead className="font-semibold">Carrera y Año</TableHead>
-                      <TableHead className="font-semibold">Facultad</TableHead>
-                      <TableHead className="font-semibold">Maestros del Trimestre</TableHead>
-                      <TableHead className="font-semibold">Estudiantes</TableHead>
-                      <TableHead className="w-20"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredSections.map((section) => (
-                      <TableRow key={section.id} className="hover:bg-gray-50">
-                        <TableCell>
-                          <div>
-                            <div className="font-medium text-gray-900">{section.careerName}</div>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Badge variant="outline" className={`${getYearColor(section.year)} border text-xs`}>
-                                {section.year} Año
-                              </Badge>
-                              <Badge variant="outline" className="text-xs">
-                                {section.code}
-                              </Badge>
-                            </div>
-                            <div className="text-sm text-gray-500 max-w-xs truncate mt-1">{section.description}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={`${getFacultyColor(section.faculty)} border`}>
-                            {section.faculty}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              <TeachersAvatarGroup teachers={section.trimesterTeachers} />
-                              <span className="text-xs text-gray-500">
-                                ({section.trimesterTeachers.length} maestros)
-                              </span>
-                            </div>
-                            <div className="space-y-1">
-                              {section.trimesterTeachers.map((teacher, index) => (
-                                <div key={index} className="text-xs text-gray-600 flex items-center gap-1">
-                                  <BookOpen className="w-3 h-3" />
-                                  {teacher}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Users className="w-4 h-4 text-blue-600" />
-                            <span className="text-lg font-semibold text-gray-900">{section.studentCount}</span>
-                            <span className="text-sm text-gray-500">estudiantes</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <MoreHorizontal className="w-4 h-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem>
-                                <Eye className="w-4 h-4 mr-2" />
-                                Ver Detalles
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <Users className="w-4 h-4 mr-2" />
-                                Ver Estudiantes
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <UserCheck className="w-4 h-4 mr-2" />
-                                Gestionar Maestros
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <Clock className="w-4 h-4 mr-2" />
-                                Horarios
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleEdit(section)}>
-                                <Edit className="w-4 h-4 mr-2" />
-                                Editar
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleDelete(section.id)} className="text-red-600">
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Eliminar
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-
-                {filteredSections.length === 0 && (
-                  <div className="text-center py-12">
-                    <GraduationCap className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No se encontraron secciones</h3>
-                    <p className="text-gray-600">Intenta ajustar los filtros de búsqueda o crea una nueva sección.</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Results Counter */}
-            <div className="mt-4 text-sm text-gray-600">
-              Mostrando {filteredSections.length} de {careerSections.length} secciones
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+            \

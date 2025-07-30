@@ -3,25 +3,8 @@
 import type React from "react"
 
 import { useState } from "react"
-import {
-  Search,
-  Plus,
-  Phone,
-  Building,
-  User,
-  Edit,
-  Trash2,
-  Users,
-  GraduationCap,
-  Bell,
-  UserPlus,
-  MoreHorizontal,
-  Eye,
-  Crown,
-  Briefcase,
-  LogOut,
-  Mail,
-} from "lucide-react"
+import Link from "next/link"
+import { Search, Plus, Phone, Building, User, Edit, Trash2, Users, GraduationCap, Bell, UserPlus, MoreHorizontal, Eye, Crown, Briefcase, LogOut, Mail } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
@@ -196,13 +179,13 @@ const contactRoles = ["Todos", "Estudiante", "Profesor", "Administrativo", "Dire
 const statusOptions = ["Todos", "Activo", "Inactivo"]
 
 const sidebarItems = [
-  { icon: Phone, label: "Agenda telefónica", active: true },
-  { icon: Users, label: "Usuarios", active: false },
-  { icon: Building, label: "Grupos", active: false },
-  { icon: GraduationCap, label: "Carreras", active: false },
-  { icon: User, label: "Perfil", active: false },
-  { icon: Bell, label: "Notificación", active: false },
-  { icon: UserPlus, label: "Invitación", active: false },
+  { icon: Phone, label: "Agenda telefónica", active: true, href: "/" },
+  { icon: Users, label: "Usuarios", active: false, href: "/usuarios" },
+  { icon: Building, label: "Grupos", active: false, href: "/grupos" },
+  { icon: GraduationCap, label: "Carreras", active: false, href: "/carreras" },
+  { icon: User, label: "Perfil", active: false, href: "/perfil" },
+  { icon: Bell, label: "Notificación", active: false, href: "/notificaciones" },
+  { icon: UserPlus, label: "Invitación", active: false, href: "/invitaciones" },
 ]
 
 export default function AgendaPage() {
@@ -348,15 +331,16 @@ export default function AgendaPage() {
 
         <nav className="flex-1 p-2">
           {sidebarItems.map((item, index) => (
-            <button
+            <Link
               key={index}
+              href={item.href}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 ${
                 item.active ? "bg-white/20 text-white font-medium" : "text-green-100 hover:bg-white/10 hover:text-white"
               }`}
             >
               <item.icon className="w-4 h-4" />
               {item.label}
-            </button>
+            </Link>
           ))}
         </nav>
 

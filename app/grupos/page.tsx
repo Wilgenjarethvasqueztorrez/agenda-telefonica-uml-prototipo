@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
+import Link from "next/link"
 import {
   Search,
   Plus,
@@ -156,66 +157,6 @@ const groupTypes = ["Todos", "Estudio", "Proyecto", "Administrativo", "Investiga
 const statusOptions = ["Todos", "Activo", "Inactivo"]
 const categories = ["Todos", "Normal", "Evento"]
 
-const sidebarItems = [
-  { icon: Phone, label: "Agenda telefónica", active: false },
-  { icon: Users, label: "Usuarios", active: false },
-  { icon: Building, label: "Grupos", active: true },
-  { icon: GraduationCap, label: "Carreras", active: false },
-  { icon: User, label: "Perfil", active: false },
-  { icon: Bell, label: "Notificación", active: false },
-  { icon: UserPlus, label: "Invitación", active: false },
-]
-
-// Componente para mostrar grupo de avatares
-function MembersAvatarGroup({ members, maxDisplay = 3 }: { members: Member[]; maxDisplay?: number }) {
-  const displayMembers = members.slice(0, maxDisplay)
-  const remainingCount = members.length - maxDisplay
-
-  return (
-    <div className="flex -space-x-2">
-      {displayMembers.map((member) => (
-        <Avatar key={member.id} className="w-6 h-6 border-2 border-white">
-          <AvatarImage src={member.avatar || "/placeholder.svg"} />
-          <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
-            {member.name
-              .split(" ")
-              .map((n) => n[0])
-              .join("")
-              .toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-      ))}
-      {remainingCount > 0 && (
-        <div className="w-6 h-6 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center">
-          <span className="text-xs text-gray-600 font-medium">+{remainingCount}</span>
-        </div>
-      )}
-    </div>
-  )
-}
-
-// Componente para mostrar carreras de los miembros
-function CareerBadges({ members }: { members: Member[] }) {
-  const uniqueCareers = [...new Set(members.map((m) => m.career))]
-  const displayCareers = uniqueCareers.slice(0, 2)
-  const remainingCount = uniqueCareers.length - 2
-
-  return (
-    <div className="flex flex-wrap gap-1">
-      {displayCareers.map((career) => (
-        <Badge key={career} variant="outline" className="text-xs">
-          {career}
-        </Badge>
-      ))}
-      {remainingCount > 0 && (
-        <Badge variant="outline" className="text-xs">
-          +{remainingCount}
-        </Badge>
-      )}
-    </div>
-  )
-}
-
 export default function GroupsPage() {
   const [groups, setGroups] = useState<Group[]>(initialGroups)
   const [searchTerm, setSearchTerm] = useState("")
@@ -363,9 +304,7 @@ export default function GroupsPage() {
   }
 
   const handleLogout = () => {
-    // Aquí implementarías la lógica de cierre de sesión
     console.log("Cerrando sesión...")
-    // Por ejemplo: redirect to login page, clear tokens, etc.
   }
 
   return (
@@ -377,17 +316,56 @@ export default function GroupsPage() {
         </div>
 
         <nav className="flex-1 p-2">
-          {sidebarItems.map((item, index) => (
-            <button
-              key={index}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 ${
-                item.active ? "bg-white/20 text-white font-medium" : "text-green-100 hover:bg-white/10 hover:text-white"
-              }`}
-            >
-              <item.icon className="w-4 h-4" />
-              {item.label}
-            </button>
-          ))}
+          <Link
+            href="/agenda"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
+          >
+            <Phone className="w-4 h-4" />
+            Agenda telefónica
+          </Link>
+          <Link
+            href="/usuarios"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
+          >
+            <Users className="w-4 h-4" />
+            Usuarios
+          </Link>
+          <Link
+            href="/grupos"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 bg-white/20 text-white font-medium"
+          >
+            <Building className="w-4 h-4" />
+            Grupos
+          </Link>
+          <Link
+            href="/carreras"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
+          >
+            <GraduationCap className="w-4 h-4" />
+            Carreras
+          </Link>
+          <Link
+            href="/perfil"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
+          >
+            <User className="w-4 h-4" />
+            Perfil
+          </Link>
+          <Link
+            href="/notificaciones"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
+          >
+            <Bell className="w-4 h-4" />
+            Notificación
+            <Badge className="bg-red-500 text-white text-xs ml-auto">3</Badge>
+          </Link>
+          <Link
+            href="/invitaciones"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
+          >
+            <UserPlus className="w-4 h-4" />
+            Invitación
+          </Link>
         </nav>
 
         {/* Logout Button */}
@@ -686,7 +664,6 @@ export default function GroupsPage() {
                       <TableHead className="font-semibold">Tipo</TableHead>
                       <TableHead className="font-semibold">Coordinador</TableHead>
                       <TableHead className="font-semibold">Miembros</TableHead>
-                      <TableHead className="font-semibold">Carreras</TableHead>
                       <TableHead className="font-semibold">Estado</TableHead>
                       <TableHead className="w-20"></TableHead>
                     </TableRow>
@@ -725,12 +702,27 @@ export default function GroupsPage() {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <MembersAvatarGroup members={group.members} />
+                            <div className="flex -space-x-2">
+                              {group.members.slice(0, 3).map((member) => (
+                                <Avatar key={member.id} className="w-6 h-6 border-2 border-white">
+                                  <AvatarImage src={member.avatar || "/placeholder.svg"} />
+                                  <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
+                                    {member.name
+                                      .split(" ")
+                                      .map((n) => n[0])
+                                      .join("")
+                                      .toUpperCase()}
+                                  </AvatarFallback>
+                                </Avatar>
+                              ))}
+                              {group.members.length > 3 && (
+                                <div className="w-6 h-6 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center">
+                                  <span className="text-xs text-gray-600 font-medium">+{group.members.length - 3}</span>
+                                </div>
+                              )}
+                            </div>
                             <span className="text-sm text-gray-600">({group.members.length})</span>
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          <CareerBadges members={group.members} />
                         </TableCell>
                         <TableCell>
                           <Badge className={`${getStatusColor(group.status)} text-xs`}>{group.status}</Badge>

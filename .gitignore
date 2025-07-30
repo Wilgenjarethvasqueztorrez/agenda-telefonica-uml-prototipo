@@ -28,3 +28,5 @@ next-env.d.ts
 .idea
 schema.prisma
 app.js
+
+authController.js

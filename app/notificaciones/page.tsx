@@ -12,7 +12,6 @@ import {
   Bell,
   UserPlus,
   MoreHorizontal,
-  LogOut,
   Mail,
   Check,
   X,
@@ -28,6 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import AppLayout from "@/components/AppLayout"
 
 interface GroupInvitation {
   id: number
@@ -230,83 +230,36 @@ export default function NotificationsPage() {
     }
   }
 
-  const handleLogout = () => {
-    console.log("Cerrando sesión...")
-  }
-
   // Calcular estadísticas
   const totalInvitations = invitations.length
   const pendingInvitations = invitations.filter((inv) => inv.status === "Pendiente").length
   const urgentInvitations = invitations.filter((inv) => inv.isUrgent && inv.status === "Pendiente").length
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-64 bg-gradient-to-b from-green-500 to-green-600 text-white flex flex-col">
-        <div className="p-4 border-b border-green-400">
-          <h2 className="text-lg font-semibold">Agenda UML</h2>
-        </div>
-
-        <nav className="flex-1 p-2">
-          {sidebarItems.map((item, index) => (
-            <button
-              key={index}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 ${
-                item.active ? "bg-white/20 text-white font-medium" : "text-green-100 hover:bg-white/10 hover:text-white"
-              }`}
-            >
-              <item.icon className="w-4 h-4" />
-              {item.label}
-              {item.label === "Notificación" && pendingInvitations > 0 && (
-                <Badge className="bg-red-500 text-white text-xs ml-auto">{pendingInvitations}</Badge>
-              )}
-            </button>
-          ))}
-        </nav>
-
-        {/* Logout Button */}
-        <div className="p-2 border-t border-green-400">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors text-green-100 hover:bg-red-500/20 hover:text-white"
-          >
-            <LogOut className="w-4 h-4" />
-            Cerrar Sesión
-          </button>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Invitaciones a Grupos</h1>
-              <p className="text-sm text-gray-600">Gestiona las invitaciones que has recibido para unirte a grupos</p>
-            </div>
-            <div className="flex items-center gap-4">
-              {/* Quick Stats */}
-              <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-1 text-blue-600">
-                  <Mail className="w-4 h-4" />
-                  <span className="font-medium">{totalInvitations}</span>
-                  <span className="text-gray-500">total</span>
-                </div>
-                <div className="flex items-center gap-1 text-yellow-600">
-                  <Clock className="w-4 h-4" />
-                  <span className="font-medium">{pendingInvitations}</span>
-                  <span className="text-gray-500">pendientes</span>
-                </div>
-                <div className="flex items-center gap-1 text-red-600">
-                  <Bell className="w-4 h-4" />
-                  <span className="font-medium">{urgentInvitations}</span>
-                  <span className="text-gray-500">urgentes</span>
-                </div>
-              </div>
-            </div>
+    <AppLayout
+      title="Invitaciones a Grupos"
+      description="Gestiona las invitaciones que has recibido para unirte a grupos"
+      notificationCount={pendingInvitations}
+      headerContent={
+        <div className="flex items-center gap-4 text-sm">
+          <div className="flex items-center gap-1 text-blue-600">
+            <Mail className="w-4 h-4" />
+            <span className="font-medium">{totalInvitations}</span>
+            <span className="text-gray-500">total</span>
+          </div>
+          <div className="flex items-center gap-1 text-yellow-600">
+            <Clock className="w-4 h-4" />
+            <span className="font-medium">{pendingInvitations}</span>
+            <span className="text-gray-500">pendientes</span>
+          </div>
+          <div className="flex items-center gap-1 text-red-600">
+            <Bell className="w-4 h-4" />
+            <span className="font-medium">{urgentInvitations}</span>
+            <span className="text-gray-500">urgentes</span>
           </div>
         </div>
+      }
+    >
 
         {/* Filters */}
         <div className="bg-white border-b border-gray-200 px-6 py-3">
@@ -507,7 +460,6 @@ export default function NotificationsPage() {
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  )
-}
+        </AppLayout>
+      )
+    }

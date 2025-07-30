@@ -7,21 +7,32 @@ import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Progress } from "@/components/ui/progress"
 import { 
-  Phone, 
-  Building, 
-  User, 
-  Users, 
-  GraduationCap, 
-  Bell, 
-  UserPlus, 
-  LogOut,
   Calendar,
   TrendingUp,
   Activity,
-  Award
+  Award,
+  Users,
+  Building,
+  Bell,
+  UserPlus,
+  GraduationCap,
+  Phone,
+  Clock,
+  Mail,
+  CheckCircle,
+  AlertCircle,
+  ArrowUpRight,
+  ArrowDownRight,
+  Sparkles,
+  Target,
+  Zap,
+  Star
 } from "lucide-react"
 import { apiClient } from "@/lib/api"
+import AppLayout from "@/components/AppLayout"
 import { toast } from "sonner"
 
 interface DashboardStats {
@@ -29,16 +40,34 @@ interface DashboardStats {
   totalUsuarios: number
   totalGrupos: number
   totalInvitaciones: number
+  invitacionesPendientes: number
+  usuariosPorRol: {
+    admin: number
+    profesor: number
+    estudiante: number
+    oficina: number
+  }
+  gruposRecientes: any[]
+  invitacionesRecientes: any[]
 }
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { user, isAuthenticated, logout } = useAuth()
+  const { user, isAuthenticated } = useAuth()
   const [stats, setStats] = useState<DashboardStats>({
     totalCarreras: 0,
     totalUsuarios: 0,
     totalGrupos: 0,
-    totalInvitaciones: 0
+    totalInvitaciones: 0,
+    invitacionesPendientes: 0,
+    usuariosPorRol: {
+      admin: 0,
+      profesor: 0,
+      estudiante: 0,
+      oficina: 0
+    },
+    gruposRecientes: [],
+    invitacionesRecientes: []
   })
   const [isLoading, setIsLoading] = useState(true)
 
@@ -55,20 +84,8 @@ export default function DashboardPage() {
     try {
       setIsLoading(true)
       
-      // Load statistics from API
-      const [carrerasRes, usuariosRes, gruposRes, invitacionesRes] = await Promise.all([
-        apiClient.getCarreras(),
-        apiClient.getUsuarios({ limit: 1 }),
-        apiClient.getGrupos({ limit: 1 }),
-        apiClient.getInvitaciones({ limit: 1 })
-      ])
-
-      setStats({
-        totalCarreras: carrerasRes.success ? carrerasRes.data?.length || 0 : 0,
-        totalUsuarios: usuariosRes.success ? usuariosRes.pagination?.total || 0 : 0,
-        totalGrupos: gruposRes.success ? gruposRes.pagination?.total || 0 : 0,
-        totalInvitaciones: invitacionesRes.success ? invitacionesRes.pagination?.total || 0 : 0
-      })
+      const dashboardStats = await apiClient.getDashboardStats()
+      setStats(dashboardStats)
     } catch (error) {
       console.error('Error loading dashboard stats:', error)
       toast.error('Error al cargar estadísticas')
@@ -77,25 +94,33 @@ export default function DashboardPage() {
     }
   }
 
-  const handleLogout = async () => {
-    try {
-      await logout()
-      toast.success('Sesión cerrada exitosamente')
-      router.push("/login")
-    } catch (error) {
-      console.error('Error en logout:', error)
-      toast.error('Error al cerrar sesión')
-    }
-  }
-
   const getRoleColor = (role: string) => {
     const colors = {
-      admin: "bg-red-100 text-red-800 border-red-200",
-      profesor: "bg-blue-100 text-blue-800 border-blue-200",
-      estudiante: "bg-green-100 text-green-800 border-green-200",
-      oficina: "bg-purple-100 text-purple-800 border-purple-200",
+      admin: "bg-gradient-to-r from-red-500 to-pink-500",
+      profesor: "bg-gradient-to-r from-blue-500 to-cyan-500",
+      estudiante: "bg-gradient-to-r from-green-500 to-emerald-500",
+      oficina: "bg-gradient-to-r from-purple-500 to-violet-500",
     }
-    return colors[role as keyof typeof colors] || "bg-gray-100 text-gray-800 border-gray-200"
+    return colors[role as keyof typeof colors] || "bg-gradient-to-r from-gray-500 to-slate-500"
+  }
+
+  const getRoleIcon = (role: string) => {
+    const icons = {
+      admin: <Award className="h-4 w-4" />,
+      profesor: <GraduationCap className="h-4 w-4" />,
+      estudiante: <Users className="h-4 w-4" />,
+      oficina: <Building className="h-4 w-4" />,
+    }
+    return icons[role as keyof typeof icons] || <Users className="h-4 w-4" />
+  }
+
+  const getStatusColor = (status: string) => {
+    const colors = {
+      pendiente: "bg-yellow-100 text-yellow-800 border-yellow-200",
+      aceptada: "bg-green-100 text-green-800 border-green-200",
+      rechazada: "bg-red-100 text-red-800 border-red-200",
+    }
+    return colors[status as keyof typeof colors] || "bg-gray-100 text-gray-800 border-gray-200"
   }
 
   if (!isAuthenticated) {
@@ -103,297 +128,303 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-64 bg-gradient-to-b from-green-500 to-green-600 text-white flex flex-col">
-        <div className="p-4 border-b border-green-400">
-          <h2 className="text-lg font-semibold">Agenda UML</h2>
-          <p className="text-sm text-green-100">Panel de Control</p>
-        </div>
-
-        <nav className="flex-1 p-2">
-          <Link
-            href="/dashboard"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 bg-white/20 text-white font-medium"
-          >
-            <Activity className="w-4 h-4" />
-            Dashboard
-          </Link>
-          <Link
-            href="/agenda"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
-          >
-            <Phone className="w-4 h-4" />
-            Agenda telefónica
-          </Link>
-          <Link
-            href="/usuarios"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
-          >
-            <Users className="w-4 h-4" />
-            Usuarios
-          </Link>
-          <Link
-            href="/grupos"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
-          >
-            <Building className="w-4 h-4" />
-            Grupos
-          </Link>
-          <Link
-            href="/carreras"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
-          >
-            <GraduationCap className="w-4 h-4" />
-            Carreras
-          </Link>
-          <Link
-            href="/perfil"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
-          >
-            <User className="w-4 h-4" />
-            Perfil
-          </Link>
-          <Link
-            href="/notificaciones"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
-          >
-            <Bell className="w-4 h-4" />
-            Notificaciones
-            <Badge className="bg-red-500 text-white text-xs ml-auto">3</Badge>
-          </Link>
-          <Link
-            href="/invitaciones"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 text-green-100 hover:bg-white/10 hover:text-white"
-          >
-            <UserPlus className="w-4 h-4" />
-            Invitaciones
-          </Link>
-        </nav>
-
-        {/* User Info */}
-        <div className="p-4 border-t border-green-400">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-              <User className="w-4 h-4" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">
-                {user?.nombres} {user?.apellidos}
+    <AppLayout
+      title="Dashboard"
+      description="Panel de control de la Agenda UML"
+    >
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6">
+        {/* Hero Section */}
+        <div className="mb-8">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 p-8 text-white shadow-2xl">
+            <div className="absolute inset-0 bg-black/10"></div>
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-white/20 rounded-full backdrop-blur-sm">
+                  <Sparkles className="h-6 w-6" />
+                </div>
+                <h1 className="text-3xl font-bold">¡Bienvenido, {user?.nombres}!</h1>
+              </div>
+              <p className="text-blue-100 text-lg max-w-2xl">
+                Aquí tienes un resumen completo de la actividad en tu agenda telefónica. 
+                Mantente al día con todas las estadísticas y actividades recientes.
               </p>
-              <p className="text-xs text-green-100 truncate">{user?.correo}</p>
             </div>
-          </div>
-          <Badge className={`${getRoleColor(user?.rol || '')} text-xs w-full justify-center`}>
-            {user?.rol?.toUpperCase() || 'USUARIO'}
-          </Badge>
-        </div>
-
-        {/* Logout Button */}
-        <div className="p-2 border-t border-green-400">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors text-green-100 hover:bg-red-500/20 hover:text-white"
-          >
-            <LogOut className="w-4 h-4" />
-            Cerrar Sesión
-          </button>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-              <p className="text-sm text-gray-600">Bienvenido al sistema de gestión de la Universidad Martin Lutero</p>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Calendar className="w-4 h-4" />
-              <span>{new Date().toLocaleDateString('es-ES', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}</span>
-            </div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
           </div>
         </div>
 
-        {/* Dashboard Content */}
-        <div className="flex-1 overflow-auto p-6">
-          <div className="space-y-6">
-            {/* Welcome Section */}
-            <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                      ¡Bienvenido, {user?.nombres}!
-                    </h2>
-                    <p className="text-gray-600 mb-4">
-                      Gestiona eficientemente la agenda telefónica, carreras, grupos y usuarios de la Universidad Martin Lutero.
-                    </p>
-                    <div className="flex gap-3">
-                      <Link href="/carreras">
-                        <Button size="sm">
-                          <GraduationCap className="w-4 h-4 mr-2" />
-                          Gestionar Carreras
-                        </Button>
-                      </Link>
-                      <Link href="/usuarios">
-                        <Button variant="outline" size="sm">
-                          <Users className="w-4 h-4 mr-2" />
-                          Ver Usuarios
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                  <div className="hidden md:block">
-                    <Award className="w-16 h-16 text-green-600" />
-                  </div>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Carreras Card */}
+          <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-green-800">Carreras</CardTitle>
+              <div className="p-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg group-hover:scale-110 transition-transform duration-300">
+                <GraduationCap className="h-4 w-4 text-white" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-green-900 mb-2">{stats.totalCarreras}</div>
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-green-600" />
+                <p className="text-sm text-green-700">Carreras registradas</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Usuarios Card */}
+          <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-blue-800">Usuarios</CardTitle>
+              <div className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg group-hover:scale-110 transition-transform duration-300">
+                <Users className="h-4 w-4 text-white" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-blue-900 mb-2">{stats.totalUsuarios}</div>
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-blue-600" />
+                <p className="text-sm text-blue-700">Usuarios activos</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Grupos Card */}
+          <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-purple-800">Grupos</CardTitle>
+              <div className="p-2 bg-gradient-to-r from-purple-500 to-violet-500 rounded-lg group-hover:scale-110 transition-transform duration-300">
+                <Building className="h-4 w-4 text-white" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-purple-900 mb-2">{stats.totalGrupos}</div>
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-purple-600" />
+                <p className="text-sm text-purple-700">Grupos creados</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Invitaciones Card */}
+          <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-orange-800">Invitaciones</CardTitle>
+              <div className="p-2 bg-gradient-to-r from-orange-500 to-amber-500 rounded-lg group-hover:scale-110 transition-transform duration-300">
+                <UserPlus className="h-4 w-4 text-white" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-orange-900 mb-2">{stats.invitacionesPendientes}</div>
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 text-orange-600" />
+                <p className="text-sm text-orange-700">Pendientes</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Quick Actions & User Stats */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Quick Actions */}
+            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-xl">
+                  <Zap className="h-5 w-5 text-yellow-500" />
+                  Acciones Rápidas
+                </CardTitle>
+                <CardDescription>
+                  Accede rápidamente a las funciones principales
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {[
+                    { href: "/carreras", icon: GraduationCap, title: "Carreras", color: "green", desc: "Gestionar carreras" },
+                    { href: "/usuarios", icon: Users, title: "Usuarios", color: "blue", desc: "Administrar usuarios" },
+                    { href: "/grupos", icon: Building, title: "Grupos", color: "purple", desc: "Crear grupos" },
+                    { href: "/agenda", icon: Phone, title: "Agenda", color: "emerald", desc: "Ver agenda" },
+                    { href: "/notificaciones", icon: Bell, title: "Notificaciones", color: "orange", desc: "Ver notificaciones" },
+                    { href: "/invitaciones", icon: UserPlus, title: "Invitaciones", color: "pink", desc: "Gestionar invitaciones" }
+                  ].map((action) => (
+                    <Link key={action.href} href={action.href}>
+                      <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer border-0 bg-gradient-to-br from-slate-50 to-slate-100">
+                        <CardContent className="p-4">
+                          <div className={`p-3 bg-gradient-to-r from-${action.color}-500 to-${action.color}-600 rounded-lg w-fit mb-3 group-hover:scale-110 transition-transform duration-300`}>
+                            <action.icon className="h-5 w-5 text-white" />
+                          </div>
+                          <h3 className="font-semibold text-gray-900 mb-1">{action.title}</h3>
+                          <p className="text-xs text-gray-600">{action.desc}</p>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
                 </div>
               </CardContent>
             </Card>
 
-            {/* Statistics Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Carreras</CardTitle>
-                  <GraduationCap className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {isLoading ? "..." : stats.totalCarreras}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Carreras activas en el sistema
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Usuarios</CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {isLoading ? "..." : stats.totalUsuarios}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Estudiantes y docentes registrados
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Grupos</CardTitle>
-                  <Building className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {isLoading ? "..." : stats.totalGrupos}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Grupos de estudio creados
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Invitaciones</CardTitle>
-                  <UserPlus className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {isLoading ? "..." : stats.totalInvitaciones}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Invitaciones pendientes
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5" />
-                    Acciones Rápidas
-                  </CardTitle>
-                  <CardDescription>
-                    Accede rápidamente a las funciones más utilizadas
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="grid grid-cols-2 gap-3">
-                    <Link href="/carreras">
-                      <Button variant="outline" className="w-full justify-start">
-                        <GraduationCap className="w-4 h-4 mr-2" />
-                        Carreras
-                      </Button>
-                    </Link>
-                    <Link href="/usuarios">
-                      <Button variant="outline" className="w-full justify-start">
-                        <Users className="w-4 h-4 mr-2" />
-                        Usuarios
-                      </Button>
-                    </Link>
-                    <Link href="/grupos">
-                      <Button variant="outline" className="w-full justify-start">
-                        <Building className="w-4 h-4 mr-2" />
-                        Grupos
-                      </Button>
-                    </Link>
-                    <Link href="/invitaciones">
-                      <Button variant="outline" className="w-full justify-start">
-                        <UserPlus className="w-4 h-4 mr-2" />
-                        Invitaciones
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Activity className="w-5 h-5" />
-                    Actividad Reciente
-                  </CardTitle>
-                  <CardDescription>
-                    Últimas actividades en el sistema
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3 text-sm">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-gray-600">Sesión iniciada exitosamente</span>
+            {/* User Statistics */}
+            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-xl">
+                  <Target className="h-5 w-5 text-blue-500" />
+                  Estadísticas por Rol
+                </CardTitle>
+                <CardDescription>
+                  Distribución de usuarios por tipo de rol
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {Object.entries(stats.usuariosPorRol).map(([rol, count]) => (
+                    <div key={rol} className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-lg ${getRoleColor(rol)}`}>
+                          {getRoleIcon(rol)}
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900 capitalize">{rol}</p>
+                          <p className="text-sm text-gray-600">{count} usuarios</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-gray-900">{count}</div>
+                        <div className="text-sm text-gray-600">
+                          {stats.totalUsuarios > 0 ? Math.round((count / stats.totalUsuarios) * 100) : 0}%
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3 text-sm">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <span className="text-gray-600">Dashboard cargado</span>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Column - Recent Activity */}
+          <div className="space-y-8">
+            {/* Recent Groups */}
+            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Building className="h-5 w-5 text-purple-500" />
+                  Grupos Recientes
+                </CardTitle>
+                <CardDescription>
+                  Últimos grupos creados
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {stats.gruposRecientes.length > 0 ? (
+                    stats.gruposRecientes.map((grupo) => (
+                      <div key={grupo.id} className="flex items-center gap-3 p-3 bg-gradient-to-r from-purple-50 to-violet-50 rounded-lg hover:shadow-md transition-shadow">
+                        <div className="p-2 bg-gradient-to-r from-purple-500 to-violet-500 rounded-lg">
+                          <Building className="h-4 w-4 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900">{grupo.nombre}</p>
+                          <p className="text-xs text-gray-600">ID: {grupo.id}</p>
+                        </div>
+                        <ArrowUpRight className="h-4 w-4 text-purple-500" />
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <Building className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                      <p>No hay grupos recientes</p>
                     </div>
-                    <div className="flex items-center gap-3 text-sm">
-                      <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
-                      <span className="text-gray-400">Esperando actividad...</span>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Invitations */}
+            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mail className="h-5 w-5 text-orange-500" />
+                  Invitaciones Recientes
+                </CardTitle>
+                <CardDescription>
+                  Últimas invitaciones enviadas
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {stats.invitacionesRecientes.length > 0 ? (
+                    stats.invitacionesRecientes.map((invitacion) => (
+                      <div key={invitacion.id} className="p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="p-1 bg-gradient-to-r from-orange-500 to-amber-500 rounded">
+                              <Mail className="h-3 w-3 text-white" />
+                            </div>
+                            <span className="text-sm font-medium text-gray-900">
+                              {invitacion.receiver}
+                            </span>
+                          </div>
+                          <Badge className={`text-xs ${getStatusColor(invitacion.estado)}`}>
+                            {invitacion.estado}
+                          </Badge>
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          Grupo: {invitacion.grupo?.nombre || 'N/A'}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {new Date(invitacion.fecha).toLocaleDateString()}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <Mail className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                      <p>No hay invitaciones recientes</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* System Status */}
+            <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 shadow-xl">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-green-800">
+                  <CheckCircle className="h-5 w-5" />
+                  Estado del Sistema
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-green-700">API Status</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      <span className="text-sm font-medium text-green-800">Online</span>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-green-700">Database</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      <span className="text-sm font-medium text-green-800">Connected</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-green-700">Performance</span>
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                      <span className="text-sm font-medium text-green-800">Excellent</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
-    </div>
+    </AppLayout>
   )
 } 

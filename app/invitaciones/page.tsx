@@ -16,7 +16,6 @@ import {
   MoreHorizontal,
   Eye,
   Clock,
-  LogOut,
   Send,
   Check,
   X,
@@ -41,6 +40,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import AppLayout from "@/components/AppLayout"
 
 interface Invitation {
   id: number
@@ -226,16 +226,6 @@ const initialInvitations: Invitation[] = [
 
 const statusOptions = ["Todos", "Pendiente", "Aceptada", "Rechazada", "Expirada"]
 
-const sidebarItems = [
-  { icon: Phone, label: "Agenda telefónica", active: false },
-  { icon: Users, label: "Usuarios", active: false },
-  { icon: Building, label: "Grupos", active: false },
-  { icon: GraduationCap, label: "Carreras", active: false },
-  { icon: User, label: "Perfil", active: false },
-  { icon: Bell, label: "Notificación", active: false },
-  { icon: UserPlus, label: "Invitación", active: true },
-]
-
 export default function InvitationsPage() {
   const [invitations, setInvitations] = useState<Invitation[]>(initialInvitations)
   const [searchTerm, setSearchTerm] = useState("")
@@ -369,427 +359,378 @@ export default function InvitationsPage() {
     return type === "Enviada" ? "bg-blue-100 text-blue-800" : "bg-purple-100 text-purple-800"
   }
 
-  const handleLogout = () => {
-    console.log("Cerrando sesión...")
-  }
-
   // Calcular estadísticas
   const totalInvitations = invitations.length
   const pendingInvitations = invitations.filter((inv) => inv.status === "Pendiente").length
   const acceptedInvitations = invitations.filter((inv) => inv.status === "Aceptada").length
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-64 bg-gradient-to-b from-green-500 to-green-600 text-white flex flex-col">
-        <div className="p-4 border-b border-green-400">
-          <h2 className="text-lg font-semibold">Agenda UML</h2>
-        </div>
-
-        <nav className="flex-1 p-2">
-          {sidebarItems.map((item, index) => (
-            <button
-              key={index}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors mb-1 ${
-                item.active ? "bg-white/20 text-white font-medium" : "text-green-100 hover:bg-white/10 hover:text-white"
-              }`}
-            >
-              <item.icon className="w-4 h-4" />
-              {item.label}
-            </button>
-          ))}
-        </nav>
-
-        {/* Logout Button */}
-        <div className="p-2 border-t border-green-400">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors text-green-100 hover:bg-red-500/20 hover:text-white"
-          >
-            <LogOut className="w-4 h-4" />
-            Cerrar Sesión
-          </button>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Invitaciones a Grupos</h1>
-              <p className="text-sm text-gray-600">Gestiona invitaciones enviadas y recibidas para unirse a grupos</p>
+    <AppLayout
+      title="Invitaciones a Grupos"
+      description="Gestiona invitaciones enviadas y recibidas para unirse a grupos"
+      headerContent={
+        <div className="flex items-center gap-4">
+          {/* Quick Stats */}
+          <div className="flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-1 text-blue-600">
+              <Mail className="w-4 h-4" />
+              <span className="font-medium">{totalInvitations}</span>
+              <span className="text-gray-500">total</span>
             </div>
-            <div className="flex items-center gap-4">
-              {/* Quick Stats */}
-              <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-1 text-blue-600">
-                  <Mail className="w-4 h-4" />
-                  <span className="font-medium">{totalInvitations}</span>
-                  <span className="text-gray-500">total</span>
-                </div>
-                <div className="flex items-center gap-1 text-yellow-600">
-                  <Clock className="w-4 h-4" />
-                  <span className="font-medium">{pendingInvitations}</span>
-                  <span className="text-gray-500">pendientes</span>
-                </div>
-                <div className="flex items-center gap-1 text-green-600">
-                  <CheckCircle className="w-4 h-4" />
-                  <span className="font-medium">{acceptedInvitations}</span>
-                  <span className="text-gray-500">aceptadas</span>
-                </div>
-              </div>
+            <div className="flex items-center gap-1 text-yellow-600">
+              <Clock className="w-4 h-4" />
+              <span className="font-medium">{pendingInvitations}</span>
+              <span className="text-gray-500">pendientes</span>
+            </div>
+            <div className="flex items-center gap-1 text-green-600">
+              <CheckCircle className="w-4 h-4" />
+              <span className="font-medium">{acceptedInvitations}</span>
+              <span className="text-gray-500">aceptadas</span>
+            </div>
+          </div>
 
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button size="sm">
-                    <Send className="w-4 h-4 mr-2" />
-                    Enviar Invitación
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle>Enviar Invitación a Grupo</DialogTitle>
-                  </DialogHeader>
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <Tabs defaultValue="group" className="w-full">
-                      <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="group">Grupo y Mensaje</TabsTrigger>
-                        <TabsTrigger value="students">Estudiantes</TabsTrigger>
-                      </TabsList>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm">
+                <Send className="w-4 h-4 mr-2" />
+                Enviar Invitación
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Enviar Invitación a Grupo</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <Tabs defaultValue="group" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="group">Grupo y Mensaje</TabsTrigger>
+                    <TabsTrigger value="students">Estudiantes</TabsTrigger>
+                  </TabsList>
 
-                      <TabsContent value="group" className="space-y-4">
-                        <div>
-                          <Label htmlFor="group">Seleccionar Grupo</Label>
-                          <Select
-                            value={formData.groupId}
-                            onValueChange={(value) => setFormData({ ...formData, groupId: value })}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Selecciona un grupo" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {availableGroups.map((group) => (
-                                <SelectItem key={group.id} value={group.id.toString()}>
-                                  <div className="flex items-center gap-2">
-                                    <Badge variant="outline" className="text-xs">
-                                      {group.type}
-                                    </Badge>
-                                    {group.name}
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
+                  <TabsContent value="group" className="space-y-4">
+                    <div>
+                      <Label htmlFor="group">Seleccionar Grupo</Label>
+                      <Select
+                        value={formData.groupId}
+                        onValueChange={(value) => setFormData({ ...formData, groupId: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona un grupo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableGroups.map((group) => (
+                            <SelectItem key={group.id} value={group.id.toString()}>
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="text-xs">
+                                  {group.type}
+                                </Badge>
+                                {group.name}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                        <div>
-                          <Label htmlFor="message">Mensaje de Invitación</Label>
-                          <Textarea
-                            id="message"
-                            placeholder="Escribe un mensaje personalizado para la invitación..."
-                            value={formData.message}
-                            onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                            rows={4}
-                            required
-                          />
-                        </div>
+                    <div>
+                      <Label htmlFor="message">Mensaje de Invitación</Label>
+                      <Textarea
+                        id="message"
+                        placeholder="Escribe un mensaje personalizado para la invitación..."
+                        value={formData.message}
+                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                        rows={4}
+                        required
+                      />
+                    </div>
 
-                        <div>
-                          <Label htmlFor="expiryDays">Días para Expirar</Label>
-                          <Select
-                            value={formData.expiryDays.toString()}
-                            onValueChange={(value) => setFormData({ ...formData, expiryDays: Number.parseInt(value) })}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="7">7 días</SelectItem>
-                              <SelectItem value="15">15 días</SelectItem>
-                              <SelectItem value="30">30 días</SelectItem>
-                              <SelectItem value="60">60 días</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </TabsContent>
+                    <div>
+                      <Label htmlFor="expiryDays">Días para Expirar</Label>
+                      <Select
+                        value={formData.expiryDays.toString()}
+                        onValueChange={(value) => setFormData({ ...formData, expiryDays: Number.parseInt(value) })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="7">7 días</SelectItem>
+                          <SelectItem value="15">15 días</SelectItem>
+                          <SelectItem value="30">30 días</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </TabsContent>
 
-                      <TabsContent value="students" className="space-y-4">
-                        <div>
-                          <Label>Seleccionar Estudiantes</Label>
-                          <p className="text-sm text-gray-600 mb-3">
-                            Selecciona los estudiantes que quieres invitar al grupo
-                          </p>
+                  <TabsContent value="students" className="space-y-4">
+                    <div>
+                      <Label>Seleccionar Estudiantes</Label>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <Input
+                          placeholder="Buscar estudiantes..."
+                          value={studentSearchTerm}
+                          onChange={(e) => setStudentSearchTerm(e.target.value)}
+                          className="pl-10"
+                        />
+                      </div>
+                    </div>
 
-                          <div className="relative mb-4">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                            <Input
-                              placeholder="Buscar estudiantes..."
-                              value={studentSearchTerm}
-                              onChange={(e) => setStudentSearchTerm(e.target.value)}
-                              className="pl-10"
-                            />
-                          </div>
-
-                          <div className="max-h-64 overflow-y-auto border rounded-lg">
-                            {filteredStudents.map((student) => (
-                              <div
-                                key={student.id}
-                                className="flex items-center space-x-3 p-3 hover:bg-gray-50 border-b last:border-b-0"
+                    <div className="border rounded-lg p-4 max-h-60 overflow-y-auto">
+                      <div className="space-y-2">
+                        {availableStudents
+                          .filter((student) =>
+                            student.name.toLowerCase().includes(studentSearchTerm.toLowerCase()) ||
+                            student.email.toLowerCase().includes(studentSearchTerm.toLowerCase())
+                          )
+                          .map((student) => (
+                            <div key={student.id} className="flex items-center space-x-3">
+                              <Checkbox
+                                id={`student-${student.id}`}
+                                checked={selectedStudents.includes(student.id)}
+                                onCheckedChange={() => toggleStudentSelection(student.id)}
+                              />
+                              <label
+                                htmlFor={`student-${student.id}`}
+                                className="flex items-center space-x-3 flex-1 cursor-pointer"
                               >
-                                <Checkbox
-                                  checked={selectedStudents.includes(student.id)}
-                                  onCheckedChange={() => toggleStudentSelection(student.id)}
-                                />
                                 <Avatar className="w-8 h-8">
-                                  <AvatarImage src={student.avatar || "/placeholder.svg"} />
+                                  <AvatarImage src="/placeholder.svg" />
                                   <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
                                     {student.name
                                       .split(" ")
                                       .map((n) => n[0])
                                       .join("")
-                                      .toUpperCase()}
+                                      .toUpperCase()
+                                      .slice(0, 2)}
                                   </AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1">
-                                  <div className="font-medium text-sm">{student.name}</div>
+                                  <div className="text-sm font-medium">{student.name}</div>
                                   <div className="text-xs text-gray-500">{student.email}</div>
                                 </div>
-                                <div className="text-right">
-                                  <Badge variant="outline" className="text-xs">
-                                    {student.career}
-                                  </Badge>
-                                  <div className="text-xs text-gray-500 mt-1">{student.year}</div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-
-                          {selectedStudents.length > 0 && (
-                            <div className="mt-4 p-3 bg-green-50 rounded-lg">
-                              <div className="flex items-center gap-2 text-sm text-green-800">
-                                <UserCheck className="w-4 h-4" />
-                                {selectedStudents.length} estudiante(s) seleccionado(s)
-                              </div>
+                                <Badge variant="outline" className="text-xs">
+                                  {student.career} - {student.year}
+                                </Badge>
+                              </label>
                             </div>
-                          )}
-                        </div>
-                      </TabsContent>
-                    </Tabs>
-
-                    <div className="flex gap-2 pt-4 border-t">
-                      <Button
-                        type="submit"
-                        className="flex-1"
-                        disabled={!formData.groupId || selectedStudents.length === 0}
-                      >
-                        <Send className="w-4 h-4 mr-2" />
-                        Enviar Invitaciones
-                      </Button>
-                      <Button type="button" variant="outline" onClick={resetForm}>
-                        Cancelar
-                      </Button>
+                          ))}
+                      </div>
                     </div>
-                  </form>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </div>
+
+                    {selectedStudents.length > 0 && (
+                      <div className="text-sm text-gray-600">
+                        {selectedStudents.length} estudiante(s) seleccionado(s)
+                      </div>
+                    )}
+                  </TabsContent>
+                </Tabs>
+
+                <div className="flex justify-end space-x-2">
+                  <Button type="button" variant="outline" onClick={resetForm}>
+                    Cancelar
+                  </Button>
+                  <Button type="submit" disabled={selectedStudents.length === 0 || !formData.groupId}>
+                    Enviar Invitaciones
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
+      }
+    >
+      {/* Filters */}
+      <div className="bg-white border-b border-gray-200 px-6 py-3">
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Status Filter */}
+          <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+            <SelectTrigger className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {statusOptions.map((status) => (
+                <SelectItem key={status} value={status}>
+                  {status}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        {/* Filters */}
-        <div className="bg-white border-b border-gray-200 px-6 py-3">
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Status Filter */}
-            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-              <SelectTrigger className="w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {statusOptions.map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {status}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {/* Search */}
-            <div className="relative ml-auto">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                placeholder="Buscar invitaciones..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-64"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 overflow-auto">
-          <div className="p-6">
-            <Card>
-              <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-b">
-                      <TableHead className="font-semibold">Grupo</TableHead>
-                      <TableHead className="font-semibold">Participantes</TableHead>
-                      <TableHead className="font-semibold">Estado</TableHead>
-                      <TableHead className="font-semibold">Fechas</TableHead>
-                      <TableHead className="font-semibold">Mensaje</TableHead>
-                      <TableHead className="w-20"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredInvitations.map((invitation) => (
-                      <TableRow key={invitation.id} className="hover:bg-gray-50">
-                        <TableCell>
-                          <div>
-                            <div className="font-medium text-gray-900">{invitation.groupName}</div>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Badge variant="outline" className="text-xs">
-                                {invitation.groupType}
-                              </Badge>
-                              <Badge variant="outline" className={`${getTypeColor(invitation.type)} text-xs`}>
-                                {invitation.type}
-                              </Badge>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <Avatar className="w-6 h-6">
-                                <AvatarImage src="/placeholder.svg" />
-                                <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
-                                  {invitation.senderName
-                                    .split(" ")
-                                    .map((n) => n[0])
-                                    .join("")
-                                    .toUpperCase()
-                                    .slice(0, 2)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <div className="text-sm font-medium">{invitation.senderName}</div>
-                                <div className="text-xs text-gray-500">{invitation.senderRole}</div>
-                              </div>
-                            </div>
-                            <div className="text-xs text-gray-600 flex items-center gap-1">
-                              <span>→</span>
-                              <span className="font-medium">{invitation.recipientName}</span>
-                              <Badge variant="outline" className="text-xs ml-1">
-                                {invitation.recipientCareer}
-                              </Badge>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="outline"
-                            className={`${getStatusColor(invitation.status)} border flex items-center gap-1 w-fit`}
-                          >
-                            {getStatusIcon(invitation.status)}
-                            {invitation.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-1 text-xs">
-                            <div className="flex items-center gap-1 text-gray-600">
-                              <Calendar className="w-3 h-3" />
-                              <span>Enviada: {invitation.sentDate}</span>
-                            </div>
-                            {invitation.responseDate && (
-                              <div className="flex items-center gap-1 text-gray-600">
-                                <Clock className="w-3 h-3" />
-                                <span>Respuesta: {invitation.responseDate}</span>
-                              </div>
-                            )}
-                            <div className="flex items-center gap-1 text-gray-600">
-                              <AlertCircle className="w-3 h-3" />
-                              <span>Expira: {invitation.expiryDate}</span>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="max-w-xs">
-                            <p className="text-sm text-gray-600 truncate" title={invitation.message}>
-                              {invitation.message}
-                            </p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <MoreHorizontal className="w-4 h-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem>
-                                <Eye className="w-4 h-4 mr-2" />
-                                Ver Detalles
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <MessageSquare className="w-4 h-4 mr-2" />
-                                Ver Mensaje Completo
-                              </DropdownMenuItem>
-                              {invitation.type === "Recibida" && invitation.status === "Pendiente" && (
-                                <>
-                                  <DropdownMenuItem
-                                    onClick={() => handleAcceptInvitation(invitation.id)}
-                                    className="text-green-600"
-                                  >
-                                    <Check className="w-4 h-4 mr-2" />
-                                    Aceptar
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    onClick={() => handleRejectInvitation(invitation.id)}
-                                    className="text-red-600"
-                                  >
-                                    <X className="w-4 h-4 mr-2" />
-                                    Rechazar
-                                  </DropdownMenuItem>
-                                </>
-                              )}
-                              <DropdownMenuItem
-                                onClick={() => handleDeleteInvitation(invitation.id)}
-                                className="text-red-600"
-                              >
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Eliminar
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-
-                {filteredInvitations.length === 0 && (
-                  <div className="text-center py-12">
-                    <Mail className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No se encontraron invitaciones</h3>
-                    <p className="text-gray-600">
-                      Intenta ajustar los filtros de búsqueda o envía una nueva invitación.
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Results Counter */}
-            <div className="mt-4 text-sm text-gray-600">
-              Mostrando {filteredInvitations.length} de {invitations.length} invitaciones
-            </div>
+          {/* Search */}
+          <div className="relative ml-auto">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              placeholder="Buscar invitaciones..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 w-64"
+            />
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-auto">
+        <div className="p-6">
+          <Card>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-b">
+                    <TableHead className="font-semibold">Grupo</TableHead>
+                    <TableHead className="font-semibold">Participantes</TableHead>
+                    <TableHead className="font-semibold">Estado</TableHead>
+                    <TableHead className="font-semibold">Fechas</TableHead>
+                    <TableHead className="font-semibold">Mensaje</TableHead>
+                    <TableHead className="w-20"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredInvitations.map((invitation) => (
+                    <TableRow key={invitation.id} className="hover:bg-gray-50">
+                      <TableCell>
+                        <div>
+                          <div className="font-medium text-gray-900">{invitation.groupName}</div>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="outline" className="text-xs">
+                              {invitation.groupType}
+                            </Badge>
+                            <Badge variant="outline" className={`${getTypeColor(invitation.type)} text-xs`}>
+                              {invitation.type}
+                            </Badge>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <Avatar className="w-6 h-6">
+                              <AvatarImage src="/placeholder.svg" />
+                              <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
+                                {invitation.senderName
+                                  .split(" ")
+                                  .map((n) => n[0])
+                                  .join("")
+                                  .toUpperCase()
+                                  .slice(0, 2)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <div className="text-sm font-medium">{invitation.senderName}</div>
+                              <div className="text-xs text-gray-500">{invitation.senderRole}</div>
+                            </div>
+                          </div>
+                          <div className="text-xs text-gray-600 flex items-center gap-1">
+                            <span>→</span>
+                            <span className="font-medium">{invitation.recipientName}</span>
+                            <Badge variant="outline" className="text-xs ml-1">
+                              {invitation.recipientCareer}
+                            </Badge>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={`${getStatusColor(invitation.status)} border-current`}
+                        >
+                          {getStatusIcon(invitation.status)}
+                          {invitation.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1 text-xs">
+                          <div className="flex items-center gap-1 text-gray-600">
+                            <Calendar className="w-3 h-3" />
+                            <span>Enviada: {invitation.sentDate}</span>
+                          </div>
+                          {invitation.responseDate && (
+                            <div className="flex items-center gap-1 text-gray-600">
+                              <Clock className="w-3 h-3" />
+                              <span>Respuesta: {invitation.responseDate}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-1 text-gray-600">
+                            <AlertCircle className="w-3 h-3" />
+                            <span>Expira: {invitation.expiryDate}</span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="max-w-xs">
+                          <p className="text-sm text-gray-600 truncate" title={invitation.message}>
+                            {invitation.message}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>
+                              <Eye className="w-4 h-4 mr-2" />
+                              Ver Detalles
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <MessageSquare className="w-4 h-4 mr-2" />
+                              Ver Mensaje Completo
+                            </DropdownMenuItem>
+                            {invitation.type === "Recibida" && invitation.status === "Pendiente" && (
+                              <>
+                                <DropdownMenuItem
+                                  onClick={() => handleAcceptInvitation(invitation.id)}
+                                  className="text-green-600"
+                                >
+                                  <Check className="w-4 h-4 mr-2" />
+                                  Aceptar
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => handleRejectInvitation(invitation.id)}
+                                  className="text-red-600"
+                                >
+                                  <X className="w-4 h-4 mr-2" />
+                                  Rechazar
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                            <DropdownMenuItem
+                              onClick={() => handleDeleteInvitation(invitation.id)}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Eliminar
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              {filteredInvitations.length === 0 && (
+                <div className="text-center py-12">
+                  <Mail className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No se encontraron invitaciones</h3>
+                  <p className="text-gray-600">
+                    Intenta ajustar los filtros de búsqueda o envía una nueva invitación.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Results Counter */}
+          <div className="mt-4 text-sm text-gray-600">
+            Mostrando {filteredInvitations.length} de {invitations.length} invitaciones
+          </div>
+        </div>
+      </div>
+    </AppLayout>
   )
 }

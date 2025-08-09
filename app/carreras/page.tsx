@@ -18,7 +18,7 @@ import { apiClient, Carrera } from "@/lib/api"
 import AppLayout from "@/components/AppLayout"
 import { toast } from "sonner"
 
-export default function CareersPage() {
+export default function CarrerasPage() {
   const [carreras, setCarreras] = useState<Carrera[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [isLoading, setIsLoading] = useState(true)
@@ -37,10 +37,10 @@ export default function CareersPage() {
   const loadCarreras = async () => {
     try {
       setIsLoading(true)
-      const response = await apiClient.getCarreras()
-      if (response.success && response.data) {
-        setCarreras(response.data)
-      }
+      const carreras: Carrera[] = await apiClient.getCarreras()
+
+      // Asignamos el arreglo directamente
+      setCarreras(carreras)
     } catch (error) {
       console.error('Error cargando carreras:', error)
       toast.error('Error al cargar las carreras')
@@ -66,7 +66,7 @@ export default function CareersPage() {
           nombre: formData.nombre,
           codigo: parseInt(formData.codigo)
         })
-        
+
         if (response.success) {
           toast.success('Carrera actualizada exitosamente')
           loadCarreras()
@@ -76,7 +76,7 @@ export default function CareersPage() {
           nombre: formData.nombre,
           codigo: parseInt(formData.codigo)
         })
-        
+
         if (response.success) {
           toast.success('Carrera creada exitosamente')
           loadCarreras()
@@ -127,7 +127,7 @@ export default function CareersPage() {
 
   // Calcular estadísticas
   const totalCarreras = carreras.length
-  const totalEstudiantes = carreras.reduce((sum, carrera) => sum + (carrera.usuarios?.length || 0), 0)
+  const totalEstudiantes = carreras.reduce((sum, carrera) => sum + (carreras.usuarios?.length || 0), 0)
 
   // Header content with stats
   const headerContent = (
@@ -163,7 +163,7 @@ export default function CareersPage() {
               className="pl-10"
             />
           </div>
-          
+
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button onClick={() => resetForm()}>

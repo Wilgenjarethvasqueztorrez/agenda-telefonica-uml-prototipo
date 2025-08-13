@@ -41,68 +41,6 @@ export default function CarrerasPage() {
     carrera_id: number;
   }
 
-  // const ListaCarreras: React.FC = () => {
-  //   const [carreras, setCarreras] = useState<Carrera[]>([]);
-  // useEffect(() => {
-  //   fetch('http://localhost:3001/api/carreras')
-  //     .then(response => response.json())
-  //     .then(data => setCarreras(data))
-  //     .catch(error => console.error('Error al obtener las carreras:', error));
-  // }, []);
-
-  //   return (
-  //     <table>
-  //       <thead>
-  //         <tr>
-  //           <th>ID</th>
-  //           <th>Nombre</th>
-  //           <th>Total de Usuarios</th>
-  //         </tr>
-  //       </thead>
-  //       <tbody>
-  //         {carreras.map(carrera => (
-  //           <tr key={carrera.id}>
-  //             <td>{carrera.id}</td>
-  //             <td>{carrera.nombre}</td>
-  //             {/* <td>{carrera.total_usuarios}</td> */}
-  //           </tr>
-  //         ))}
-  //       </tbody>
-  //     </table>
-  //   );
-  // };
-  // const ListaCarrerasUsuarios: React.FC = () => {
-  //   const [usuarios, setUsuarios] = useState<Usuarios[]>([]);
-  // useEffect(() => {
-  //   fetch('http://localhost:3001/api/usuarios')
-  //     .then(response => response.json())
-  //     .then(data => setCarreras(data))
-  //     .catch(error => console.error('Error al obtener los usuarios:', error));
-  // }, []);
-
-  //   return (
-  //     <table>
-  //       <thead>
-  //         <tr>
-  //           <th>ID</th>
-  //           <th>Nombre</th>
-  //           <th>Usuarios Por Carrera</th>
-  //         </tr>
-  //       </thead>
-  //       <tbody>
-  //         {usuarios.map(usuario => (
-  //           <tr key={usuario.id}>
-  //             <td>{usuario.id}</td>
-  //             <td>{usuario.nombres}</td>
-  //             <td>{usuario.carrera_id}</td>
-  //           </tr>
-  //         ))}
-  //       </tbody>
-  //     </table>
-  //   );
-  // };
-
-
 
   // Cargar carreras al montar el componente
   useEffect(() => {

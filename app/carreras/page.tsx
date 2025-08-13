@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Plus, Award, Search, Edit, Trash2, MoreHorizontal, Eye, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -20,6 +20,7 @@ import { toast } from "sonner"
 
 export default function CarrerasPage() {
   const [carreras, setCarreras] = useState<Carrera[]>([])
+  const [usuarios, setUsuarios] = useState<Usuarios[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -28,6 +29,80 @@ export default function CarrerasPage() {
     nombre: "",
     codigo: "",
   })
+
+  interface Carrera {
+    id: number;
+    nombre: string;
+    codigo: number;
+  }
+  interface Usuarios {
+    id: number;
+    nombres: string;
+    carrera_id: number;
+  }
+
+  // const ListaCarreras: React.FC = () => {
+  //   const [carreras, setCarreras] = useState<Carrera[]>([]);
+  // useEffect(() => {
+  //   fetch('http://localhost:3001/api/carreras')
+  //     .then(response => response.json())
+  //     .then(data => setCarreras(data))
+  //     .catch(error => console.error('Error al obtener las carreras:', error));
+  // }, []);
+
+  //   return (
+  //     <table>
+  //       <thead>
+  //         <tr>
+  //           <th>ID</th>
+  //           <th>Nombre</th>
+  //           <th>Total de Usuarios</th>
+  //         </tr>
+  //       </thead>
+  //       <tbody>
+  //         {carreras.map(carrera => (
+  //           <tr key={carrera.id}>
+  //             <td>{carrera.id}</td>
+  //             <td>{carrera.nombre}</td>
+  //             {/* <td>{carrera.total_usuarios}</td> */}
+  //           </tr>
+  //         ))}
+  //       </tbody>
+  //     </table>
+  //   );
+  // };
+  // const ListaCarrerasUsuarios: React.FC = () => {
+  //   const [usuarios, setUsuarios] = useState<Usuarios[]>([]);
+  // useEffect(() => {
+  //   fetch('http://localhost:3001/api/usuarios')
+  //     .then(response => response.json())
+  //     .then(data => setCarreras(data))
+  //     .catch(error => console.error('Error al obtener los usuarios:', error));
+  // }, []);
+
+  //   return (
+  //     <table>
+  //       <thead>
+  //         <tr>
+  //           <th>ID</th>
+  //           <th>Nombre</th>
+  //           <th>Usuarios Por Carrera</th>
+  //         </tr>
+  //       </thead>
+  //       <tbody>
+  //         {usuarios.map(usuario => (
+  //           <tr key={usuario.id}>
+  //             <td>{usuario.id}</td>
+  //             <td>{usuario.nombres}</td>
+  //             <td>{usuario.carrera_id}</td>
+  //           </tr>
+  //         ))}
+  //       </tbody>
+  //     </table>
+  //   );
+  // };
+
+
 
   // Cargar carreras al montar el componente
   useEffect(() => {
@@ -41,6 +116,24 @@ export default function CarrerasPage() {
 
       // Asignamos el arreglo directamente
       setCarreras(carreras)
+    } catch (error) {
+      console.error('Error cargando carreras:', error)
+      toast.error('Error al cargar las carreras')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  useEffect(() => {
+    loadUsuarios()
+  }, [])
+
+  const loadUsuarios = async () => {
+    try {
+      setIsLoading(true)
+      const usuarios: Usuario[] = await apiClient.getUsuarios()
+
+      // Asignamos el arreglo directamente
+      setUsuarios(usuarios)
     } catch (error) {
       console.error('Error cargando carreras:', error)
       toast.error('Error al cargar las carreras')
@@ -67,7 +160,7 @@ export default function CarrerasPage() {
           codigo: parseInt(formData.codigo)
         })
 
-        if (response.success) {
+        if (response) {
           toast.success('Carrera actualizada exitosamente')
           loadCarreras()
         }
@@ -77,7 +170,7 @@ export default function CarrerasPage() {
           codigo: parseInt(formData.codigo)
         })
 
-        if (response.success) {
+        if (response) {
           toast.success('Carrera creada exitosamente')
           loadCarreras()
         }
@@ -114,20 +207,28 @@ export default function CarrerasPage() {
     }
 
     try {
-      const response = await apiClient.deleteCarrera(id)
-      if (response.success) {
-        toast.success('Carrera eliminada exitosamente')
-        loadCarreras()
-      }
+      await apiClient.deleteCarrera(id)
+
+      toast.success('Carrera eliminada exitosamente')
+      loadCarreras()
     } catch (error) {
       console.error('Error eliminando carrera:', error)
       toast.error('Error al eliminar la carrera')
     }
+
   }
 
   // Calcular estadísticas
   const totalCarreras = carreras.length
-  const totalEstudiantes = carreras.reduce((sum, carrera) => sum + (carreras.usuarios?.length || 0), 0)
+  const conteoPorCarrera = filteredCarreras.map((carrera) => {
+    const total = usuarios.filter((u) => u.carrera_id === carrera.id).length;
+    return {
+      ...carrera,
+      totalEstudiantes: total,
+    };
+  });
+  const totalEstudiantes = conteoPorCarrera.reduce(
+    (sum, carrera) => sum + carrera.totalEstudiantes, 0);
 
   // Header content with stats
   const headerContent = (
@@ -185,8 +286,7 @@ export default function CarrerasPage() {
                     value={formData.nombre}
                     onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                     placeholder="Ingrese el nombre de la carrera"
-                    required
-                  />
+                    required />
                 </div>
                 <div>
                   <Label htmlFor="codigo">Código</Label>
@@ -196,8 +296,7 @@ export default function CarrerasPage() {
                     value={formData.codigo}
                     onChange={(e) => setFormData({ ...formData, codigo: e.target.value })}
                     placeholder="Ingrese el código de la carrera"
-                    required
-                  />
+                    required />
                 </div>
                 <div className="flex justify-end gap-2">
                   <Button type="button" variant="outline" onClick={resetForm}>
@@ -240,13 +339,13 @@ export default function CarrerasPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredCarreras.map((carrera) => (
+                  {conteoPorCarrera.map((carrera) => (
                     <TableRow key={carrera.id}>
                       <TableCell className="font-medium">{carrera.codigo}</TableCell>
                       <TableCell>{carrera.nombre}</TableCell>
                       <TableCell>
                         <Badge variant="secondary">
-                          {carrera.usuarios?.length || 0} estudiantes
+                          {carrera.totalEstudiantes || 0} estudiantes
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
